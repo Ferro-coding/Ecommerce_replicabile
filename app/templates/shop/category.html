@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.products') }}">Prodotti</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Categoria -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            {% if category.image %}
+            <div class="category-header mb-3" style="background-image: url('{{ category.image }}'); background-size: cover; background-position: center; height: 200px; border-radius: 8px;"></div>
+            {% endif %}
+            <h1>{{ category.name }}</h1>
+            {% if category.description %}
+            <p class="lead text-muted">{{ category.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filtro Categorie -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-outline-secondary">
+                    Tutte le Categorie
+                </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('shop.category', slug=cat.slug) }}"
+                   class="btn btn-sm {{ 'btn-primary' if cat.id == category.id else 'btn-outline-secondary' }}">
+                    {{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Prodotti -->
+    <div class="row">
+        {% if products %}
+            {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if product.discount_percentage > 0 %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-danger">-{{ product.discount_percentage }}%</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.image %}
+                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        {% if product.short_description %}
+                        <p class="card-text text-muted small">{{ product.short_description[:80] }}...</p>
+                        {% endif %}
+                        <p class="card-text">
+                            {% if product.sale_price %}
+                                <span class="text-danger fw-bold">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.sale_price) }}</span>
+                                <span class="text-muted text-decoration-line-through small">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</span>
+                            {% else %}
+                                <span class="fw-bold">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</span>
+                            {% endif %}
+                        </p>
+                        {% if not product.in_stock %}
+                        <p class="text-danger small">Non disponibile</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="btn btn-primary btn-sm w-100">
+                            Dettagli
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Nessun prodotto disponibile in questa categoria.
+                    <a href="{{ url_for('shop.products') }}">Torna al catalogo</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Paginazione -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Paginazione prodotti">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('shop.category', slug=category.slug, page=pagination.prev_num) }}">
+                    Precedente
+                </a>
+            </li>
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('shop.category', slug=category.slug, page=page) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('shop.category', slug=category.slug, page=pagination.next_num) }}">
+                    Successivo
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

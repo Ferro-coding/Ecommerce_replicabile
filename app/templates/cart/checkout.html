@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Checkout</h1>
+
+    <form method="POST">
+        <div class="row">
+            <!-- Informazioni Spedizione -->
+            <div class="col-md-7">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informazioni di Spedizione</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ current_user.first_name or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Cognome *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ current_user.last_name or '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Telefono</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ current_user.phone or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Indirizzo *</label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ current_user.address or '' }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">Città *</label>
+                                <input type="text" class="form-control" id="city" name="city" value="{{ current_user.city or '' }}" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="postal_code" class="form-label">CAP *</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ current_user.postal_code or '' }}" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="country" class="form-label">Paese *</label>
+                                <input type="text" class="form-control" id="country" name="country" value="{{ current_user.country or 'Italia' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Note per l'ordine (opzionale)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Metodo di Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer" checked>
+                            <label class="form-check-label" for="bank_transfer">
+                                <strong>Bonifico Bancario</strong><br>
+                                <small class="text-muted">Riceverai i dettagli via email</small>
+                            </label>
+                        </div>
+                        <hr>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="cash_on_delivery" value="cash_on_delivery">
+                            <label class="form-check-label" for="cash_on_delivery">
+                                <strong>Contrassegno</strong><br>
+                                <small class="text-muted">Pagamento alla consegna</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riepilogo Ordine -->
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Riepilogo Ordine</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Prodotti:</h6>
+                        <ul class="list-unstyled">
+                            {% for item in cart_items %}
+                            <li class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                                    <span>{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(item.subtotal) }}</span>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotale:</span>
+                            <span>{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(subtotal) }}</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>IVA:</span>
+                            <span>{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(tax) }}</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Spedizione:</span>
+                            <span>
+                                {% if shipping > 0 %}
+                                    {{ CURRENCY_SYMBOL }}{{ "%.2f"|format(shipping) }}
+                                {% else %}
+                                    GRATIS
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>TOTALE:</strong>
+                            <strong class="text-primary">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(total) }}</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            <i class="fas fa-lock"></i> Conferma Ordine
+                        </button>
+
+                        <p class="text-muted text-center mt-3 small">
+                            Cliccando su "Conferma Ordine" accetti i nostri termini e condizioni
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
