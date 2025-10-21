@@ -1,0 +1,70 @@
+/* PERSONALIZZA QUESTI STILI PER OGNI PROGETTO */
+
+:root {
+    /* Colori principali - MODIFICA QUESTI */
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Product image */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Badge position */
+.position-absolute {
+    z-index: 1;
+}
+
+/* Footer links */
+footer a {
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Custom buttons - PERSONALIZZA */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 150px;
+    }
+}

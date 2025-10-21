@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Prodotti - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Catalogo Prodotti</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="GET" action="{{ url_for('shop.products') }}" class="d-flex">
+                <input type="text" name="search" class="form-control me-2" placeholder="Cerca prodotti..." value="{{ search }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" onchange="location.href='{{ url_for('shop.products') }}?sort=' + this.value">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Più recenti</option>
+                <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Prezzo crescente</option>
+                <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Prezzo decrescente</option>
+                <option value="name" {% if sort == 'name' %}selected{% endif %}>Nome A-Z</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if products %}
+            {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if product.discount_percentage > 0 %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-danger">-{{ product.discount_percentage }}%</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.image %}
+                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        {% if product.short_description %}
+                        <p class="card-text text-muted small">{{ product.short_description[:80] }}...</p>
+                        {% endif %}
+                        <p class="card-text">
+                            {% if product.sale_price %}
+                                <span class="text-danger fw-bold">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.sale_price) }}</span>
+                                <span class="text-muted text-decoration-line-through small">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</span>
+                            {% else %}
+                                <span class="fw-bold">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</span>
+                            {% endif %}
+                        </p>
+                        {% if not product.in_stock %}
+                        <p class="text-danger small">Non disponibile</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="btn btn-primary btn-sm w-100">
+                            Dettagli
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">Nessun prodotto trovato</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Paginazione -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Paginazione prodotti">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('shop.products', page=pagination.prev_num, search=search, sort=sort) }}">
+                    Precedente
+                </a>
+            </li>
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('shop.products', page=page, search=search, sort=sort) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('shop.products', page=pagination.next_num, search=search, sort=sort) }}">
+                    Successivo
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
