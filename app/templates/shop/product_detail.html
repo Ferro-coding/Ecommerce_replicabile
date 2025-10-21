@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - {{ PROJECT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.products') }}">Prodotti</a></li>
+            {% if product.category %}
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.category', slug=product.category.slug) }}">{{ product.category.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.image %}
+            <img src="{{ product.image }}" class="img-fluid" alt="{{ product.name }}">
+            {% else %}
+            <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 400px;">
+                <i class="fas fa-image fa-10x text-white"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1>{{ product.name }}</h1>
+
+            {% if product.category %}
+            <p class="text-muted">
+                Categoria: <a href="{{ url_for('shop.category', slug=product.category.slug) }}">{{ product.category.name }}</a>
+            </p>
+            {% endif %}
+
+            <div class="mb-3">
+                {% if product.sale_price %}
+                    <h2 class="text-danger">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.sale_price) }}</h2>
+                    <p class="text-muted text-decoration-line-through">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</p>
+                    <span class="badge bg-danger">Risparmi {{ product.discount_percentage }}%</span>
+                {% else %}
+                    <h2>{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(product.price) }}</h2>
+                {% endif %}
+            </div>
+
+            {% if product.short_description %}
+            <p class="lead">{{ product.short_description }}</p>
+            {% endif %}
+
+            {% if product.in_stock %}
+                <p class="text-success"><i class="fas fa-check-circle"></i> Disponibile ({{ product.stock }} pz)</p>
+
+                {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('cart.add', product_id=product.id) }}">
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantità</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width: 100px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cart-plus"></i> Aggiungi al Carrello
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    <a href="{{ url_for('auth.login') }}">Accedi</a> per aggiungere al carrello
+                </div>
+                {% endif %}
+            {% else %}
+                <p class="text-danger"><i class="fas fa-times-circle"></i> Non disponibile</p>
+            {% endif %}
+
+            {% if product.sku %}
+            <p class="text-muted mt-3">SKU: {{ product.sku }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if product.description %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Descrizione</h3>
+            <p>{{ product.description }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Prodotti Correlati</h3>
+        </div>
+        {% for related in related_products %}
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                {% if related.image %}
+                <img src="{{ related.image }}" class="card-img-top" alt="{{ related.name }}">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
+                    <i class="fas fa-image fa-2x text-white"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ related.name }}</h6>
+                    <p class="card-text">{{ CURRENCY_SYMBOL }}{{ "%.2f"|format(related.current_price) }}</p>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{{ url_for('shop.product_detail', slug=related.slug) }}" class="btn btn-sm btn-outline-primary w-100">
+                        Dettagli
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
