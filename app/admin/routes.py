@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required
 from app import db
 from app.admin import admin_bp
@@ -41,7 +41,7 @@ def dashboard():
 def orders():
     """Lista ordini"""
     page = request.args.get('page', 1, type=int)
-    per_page = request.current_app.config['ORDERS_PER_PAGE']
+    per_page = current_app.config['ORDERS_PER_PAGE']
 
     status = request.args.get('status')
     query = Order.query
@@ -100,7 +100,7 @@ def update_order_status(order_id):
 def products():
     """Lista prodotti"""
     page = request.args.get('page', 1, type=int)
-    per_page = request.current_app.config['PRODUCTS_PER_PAGE']
+    per_page = current_app.config['PRODUCTS_PER_PAGE']
 
     pagination = Product.query.order_by(Product.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False

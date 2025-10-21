@@ -1,4 +1,4 @@
-from flask import render_template, request, abort
+from flask import render_template, request, abort, current_app
 from app.shop import shop_bp
 from app.models.product import Product, Category
 from sqlalchemy import or_
@@ -16,7 +16,7 @@ def index():
 def products():
     """Catalogo prodotti con filtri e paginazione"""
     page = request.args.get('page', 1, type=int)
-    per_page = request.current_app.config['PRODUCTS_PER_PAGE']
+    per_page = current_app.config['PRODUCTS_PER_PAGE']
 
     # Filtri
     category_slug = request.args.get('category')
@@ -84,7 +84,7 @@ def category(slug):
     category = Category.query.filter_by(slug=slug).first_or_404()
 
     page = request.args.get('page', 1, type=int)
-    per_page = request.current_app.config['PRODUCTS_PER_PAGE']
+    per_page = current_app.config['PRODUCTS_PER_PAGE']
 
     pagination = Product.query.filter_by(
         category_id=category.id,
