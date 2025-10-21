@@ -83,37 +83,28 @@ cp .env.example .env
 # Modifica .env con le tue configurazioni
 ```
 
-### 5. Inizializza il database
+### 5. Avvia l'applicazione
 
 ```bash
-# Opzione 1: Auto-creazione al primo avvio (SQLite)
 python run.py
-
-# Opzione 2: Usa Flask-Migrate per migrazioni
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
 ```
 
-### 6. Crea un utente admin (opzionale)
+Al primo avvio, l'applicazione:
+- Crea automaticamente il database
+- Crea un utente admin di default
 
-Apri una shell Python:
+**Credenziali Admin di default:**
+- **Username:** `admin`
+- **Password:** `admin123`
+- **Email:** `admin@example.com`
 
-```python
-from app import create_app, db
-from app.models.user import User
+⚠️ **IMPORTANTE:** Cambia la password dell'admin dopo il primo login, specialmente in produzione!
 
-app = create_app()
-with app.app_context():
-    admin = User(
-        username='admin',
-        email='admin@example.com',
-        is_admin=True
-    )
-    admin.set_password('admin123')
-    db.session.add(admin)
-    db.session.commit()
-```
+### 6. Accedi al pannello admin
+
+Visita: `http://localhost:5000/admin`
+
+Usa le credenziali sopra per accedere.
 
 ## 🎯 Come Personalizzare per Ogni Progetto
 

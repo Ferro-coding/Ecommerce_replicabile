@@ -66,4 +66,22 @@ def create_app(config_name='default'):
     with app.app_context():
         db.create_all()
 
+        # Crea utente admin se non esiste
+        from app.models.user import User
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            admin = User(
+                username='admin',
+                email='admin@example.com',
+                is_admin=True,
+                is_active=True
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            print("✓ Utente admin creato automaticamente")
+            print("  Username: admin")
+            print("  Password: admin123")
+            print("  IMPORTANTE: Cambia la password in produzione!")
+
     return app
