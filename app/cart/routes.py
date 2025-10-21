@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.cart import cart_bp
@@ -17,11 +17,11 @@ def view():
 
     # Calcola totali
     subtotal = sum(item.subtotal for item in cart_items)
-    tax = subtotal * request.current_app.config['TAX_RATE']
-    shipping = request.current_app.config['SHIPPING_COST']
+    tax = subtotal * current_app.config['TAX_RATE']
+    shipping = current_app.config['SHIPPING_COST']
 
     # Spedizione gratuita oltre soglia
-    if subtotal >= request.current_app.config['FREE_SHIPPING_THRESHOLD']:
+    if subtotal >= current_app.config['FREE_SHIPPING_THRESHOLD']:
         shipping = 0
 
     total = subtotal + tax + shipping
@@ -129,10 +129,10 @@ def checkout():
 
     # Calcola totali
     subtotal = sum(item.subtotal for item in cart_items)
-    tax = subtotal * request.current_app.config['TAX_RATE']
-    shipping = request.current_app.config['SHIPPING_COST']
+    tax = subtotal * current_app.config['TAX_RATE']
+    shipping = current_app.config['SHIPPING_COST']
 
-    if subtotal >= request.current_app.config['FREE_SHIPPING_THRESHOLD']:
+    if subtotal >= current_app.config['FREE_SHIPPING_THRESHOLD']:
         shipping = 0
 
     total = subtotal + tax + shipping
